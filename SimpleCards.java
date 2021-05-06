@@ -101,15 +101,33 @@ public class SimpleCards {
         private Rectangle scoringRect;
 
         private int score = 0;
+        private int handsLeft = 4;
 
         private Rectangle cardReturn = new Rectangle();
 
         private void submitCard(Card c)
         {
+        	if(scoringCard.getSuit() == c.getSuit())
+        	{
+        		score+=1;
+        	}
+        	if(scoringCard.getSuit() == c.getSuit())
+        	{
+        		score+=1;
+        	}
+
+
         	scoringCard = c;
         	scoringRect = mapCards.get(c);
+        	scoringRect.x = scoringRect.x - 5;
         	players.get(0).cards.remove(c);
         	mapCards.remove(c);
+
+        	if(players.get(0).size() == 0 && handsLeft > 0)
+        	{
+        		drawFiveCards();
+        		handsLeft--;
+        	}
         }
 
         public GamePane() {
@@ -175,7 +193,7 @@ public class SimpleCards {
 	                            cardReturn.y = bounds.y;
 
 	                            bounds.y = 80;
-	                            bounds.x = 170;
+	                            bounds.x = 175;
 	                            repaint();
 	                            break;
 	                        }
@@ -184,8 +202,22 @@ public class SimpleCards {
                 }
             });
         }
+
+        private void drawFiveCards()
+        {
+        	for (int index = 0; index < 5; index++) {
+                Hand hand = players.get(0);
+                hand.add(Deck.INSTANCE.pop());
+            }
+            setMapCards();
+        }
+
         private void initializeGame()
         {
+        	scoringCard = null;
+        	scoringRect = null;
+        	score = 0;
+        	handsLeft = 4;
         	Deck.INSTANCE.shuffle();
             players = new ArrayList<>(1);
             players.add(new Hand());
@@ -232,6 +264,25 @@ public class SimpleCards {
             g2d.drawRect(160,70,100,150);
             g2d.drawString("Hand",100,230);
             g2d.drawRect(100,240,235,150);
+
+            g2d.drawString("Score: " + score,50,100);
+            g2d.drawString("Hands: " + handsLeft,50,150);
+
+            if(scoringCard != null)
+            {
+            	Rectangle bounds = scoringRect;
+                System.out.println(bounds);
+                if (bounds != null) {
+                    g2d.setColor(Color.WHITE);
+                    g2d.fill(bounds);
+                    g2d.setColor(Color.BLACK);
+                    g2d.draw(bounds);
+                    Graphics2D copy = (Graphics2D) g2d.create();
+                    paintCard(copy, scoringCard, bounds);
+                    copy.dispose();
+                }
+            }
+
             for (Card card : hand.cards) {
                 Rectangle bounds = mapCards.get(card);
                 System.out.println(bounds);
@@ -245,6 +296,14 @@ public class SimpleCards {
                     copy.dispose();
                 }
             }
+
+            if(selected != null)
+            {
+            	g2d.setColor(Color.RED);
+            	g2d.drawRect(160,70,100,150);
+            }
+
+
             for(Button b : buttons)
             {
             	b.draw(g2d);

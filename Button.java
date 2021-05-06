@@ -62,6 +62,6 @@ public class Button {
         g2d.fill(spot);
         g2d.setColor(Color.BLACK);
         g2d.draw(spot);
-        g2d.drawString(name, spot.x, spot.y + spot.height);
+        g2d.drawString(name, spot.x + 5, spot.y + spot.height - 3);
     }
 }
