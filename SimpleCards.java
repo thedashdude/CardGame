@@ -216,6 +216,8 @@ public class SimpleCards {
 
         private Card selected;
 
+        private Rectangle cardReturn = new Rectangle();
+
         public GamePane(List<Hand> players) {
             this.players = players;
             mapCards = new HashMap<>(players.size() * 5);
@@ -225,21 +227,28 @@ public class SimpleCards {
                 public void mouseClicked(MouseEvent e) {
                     if (selected != null) {
                         Rectangle bounds = mapCards.get(selected);
-                        bounds.y = 80;
-                        bounds.x = 50;
+                        bounds.y = cardReturn.y;
+                        bounds.x = cardReturn.x;
                         repaint();
+                        selected = null;
                     }
-                    selected = null;
-                    for (Card card : players.get(0).reveresed()) {
-                        Rectangle bounds = mapCards.get(card);
-                        if (bounds.contains(e.getPoint())) {
-                            selected = card;
-                            bounds.y = 80;
-                            bounds.x = 170;
-                            repaint();
-                            break;
-                        }
-                    }
+                    else
+                    {
+	                    
+	                    for (Card card : players.get(0).reveresed()) {
+	                        Rectangle bounds = mapCards.get(card);
+	                        if (bounds.contains(e.getPoint())) {
+	                            selected = card;
+	                            cardReturn.x = bounds.x;
+	                            cardReturn.y = bounds.y;
+
+	                            bounds.y = 80;
+	                            bounds.x = 170;
+	                            repaint();
+	                            break;
+	                        }
+	                    }
+	                }
                 }
             });
         }
@@ -291,7 +300,7 @@ public class SimpleCards {
         }
 
         protected void paintCard(Graphics2D g2d, Card card, Rectangle bounds) {
-            g2d.translate(bounds.x + 5, bounds.y + 5);
+            g2d.translate(bounds.x, bounds.y );
             g2d.setClip(0, 0, bounds.width - 5, bounds.height - 5);
 
             String text = card.getFace().getValue();
@@ -300,7 +309,7 @@ public class SimpleCards {
             at.translate( bounds.width/2 - 16, bounds.height/2 - 16);
             g2d.drawImage(card.getSuit().getIcon(), at, null);
 
-            g2d.drawString(text, 0, fm.getAscent());
+            g2d.drawString(text, 5, fm.getAscent());
         }
     }
 
