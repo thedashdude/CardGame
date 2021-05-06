@@ -35,7 +35,7 @@ public class SimpleCards {
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
                     ex.printStackTrace();
                 }
-
+                /*
                 Deck.INSTANCE.shuffle();
                 List<Hand> players = new ArrayList<>(5);
                 for (int index = 0; index < 5; index++) {
@@ -47,10 +47,10 @@ public class SimpleCards {
                         hand.add(Deck.INSTANCE.pop());
                     }
                 }
-
+				*/
                 JFrame frame = new JFrame("Testing");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.add(new GamePane(players));
+                frame.add(new GamePane());
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
@@ -60,7 +60,7 @@ public class SimpleCards {
 
     public class Hand {
 
-        private List<Card> cards;
+        public List<Card> cards;
 
         public Hand() {
             cards = new ArrayList<>(25);
@@ -91,20 +91,73 @@ public class SimpleCards {
 
         private List<Hand> players;
 
+        private List<Button> buttons;
+
         private Map<Card, Rectangle> mapCards;
 
         private Card selected;
 
+        private Card scoringCard;
+        private Rectangle scoringRect;
+
+        private int score = 0;
+
         private Rectangle cardReturn = new Rectangle();
 
-        public GamePane(List<Hand> players) {
-            this.players = players;
-            mapCards = new HashMap<>(players.size() * 5);
+        private void submitCard(Card c)
+        {
+        	scoringCard = c;
+        	scoringRect = mapCards.get(c);
+        	players.get(0).cards.remove(c);
+        	mapCards.remove(c);
+        }
+
+        public GamePane() {
+        	buttons = new ArrayList<>();
+        	buttons.add(new Button("RESET",new Rectangle(10,10,100,20), true));
+        	initializeGame();
+
+            
+
+
+            
 
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
+
+                	for(Button b : buttons)
+                	{
+                		if(b.getRect().contains(e.getPoint()))
+                		{
+                			if(b.isText("RESET"))
+                			{
+                				initializeGame();
+                				selected = null;
+                			}
+
+                			repaint();
+                			return;
+                		}
+
+                	}
+
                     if (selected != null) {
+                    	Card newSelected = null;
+                    	for (Card card : players.get(0).reveresed()) {
+	                        Rectangle bounds = mapCards.get(card);
+	                        if (bounds.contains(e.getPoint())) {
+	                            newSelected = card;
+	                        }
+	                    }
+	                    if(newSelected == selected)
+	                    {
+	                    	submitCard(selected);
+	                    	repaint();
+	                    	selected = null;
+	                    	return;
+	                    }
+
                         Rectangle bounds = mapCards.get(selected);
                         bounds.y = cardReturn.y;
                         bounds.x = cardReturn.x;
@@ -131,26 +184,43 @@ public class SimpleCards {
                 }
             });
         }
+        private void initializeGame()
+        {
+        	Deck.INSTANCE.shuffle();
+            players = new ArrayList<>(1);
+            players.add(new Hand());
+
+            for (int index = 0; index < 5; index++) {
+                Hand hand = players.get(0);
+                hand.add(Deck.INSTANCE.pop());
+                
+            }
+
+            mapCards = new HashMap<>(players.size() * 5);
+            setMapCards();
+        }
+
 
         @Override
         public Dimension getPreferredSize() {
             return new Dimension(400, 400);
         }
 
-        @Override
-        public void invalidate() {
-            super.invalidate();
+
+        private void setMapCards() {
+        	int h = 400;
             mapCards.clear();
             Hand hand = players.get(0);
-            int cardHeight = (getHeight() - 20) / 3;
+            int cardHeight = (h - 20) / 3;
             int cardWidth = (int) (cardHeight * 0.6);
             int xDelta = cardWidth / 2;
-            int xPos = (int) ((getWidth() / 2) - (cardWidth * (hand.size() / 4.0)));
-            int yPos = (getHeight() - 20) - cardHeight;
+            int xPos = (int) ((h / 2) - (cardWidth * (hand.size() / 4.0)));
+            int yPos = (h - 20) - cardHeight;
             for (Card card : hand.cards()) {
                 Rectangle bounds = new Rectangle(xPos, yPos, cardWidth, cardHeight);
                 mapCards.put(card, bounds);
                 xPos += xDelta;
+                System.out.println(bounds + "oof");
             }
         }
 
@@ -174,6 +244,10 @@ public class SimpleCards {
                     paintCard(copy, card, bounds);
                     copy.dispose();
                 }
+            }
+            for(Button b : buttons)
+            {
+            	b.draw(g2d);
             }
             g2d.dispose();
         }
