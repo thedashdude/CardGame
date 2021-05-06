@@ -16,6 +16,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.imageio.ImageIO;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 
 public class SimpleCards {
 
@@ -86,11 +89,13 @@ public class SimpleCards {
 
         private Suit suit;
         private Face face;
+        
 
         public Card(Suit suit, Face face) {
             this.suit = suit;
             this.face = face;
         }
+            
 
         public Suit getSuit() {
             return suit;
@@ -157,17 +162,46 @@ public class SimpleCards {
     }
 
     enum Suit {
-        CLUBS("♣"), DIAMONDS("♦"), HEARTS("♥"), SPADES("♠");
+        CLUBS(0), DIAMONDS(1), HEARTS(2), SPADES(3);
 
-        private String value;
+        private int value;
+        private BufferedImage icon;
 
-        private Suit(String value) {
+        private Suit(int value) {
             this.value = value;
+            String iconPath = "/images/";
+            if(value == 0)
+            {
+            	iconPath += "club_suit.png";
+            }
+            if(value == 1)
+            {
+            	iconPath += "diamond_suit.png";
+            }
+            if(value == 2)
+            {
+            	iconPath += "heart_suit.png";
+            }
+            if(value == 3)
+            {
+            	iconPath += "spade_suit.png";
+            }
+
+            try{
+	        	icon = ImageIO.read(getClass().getResource(iconPath));
+	        }catch(Exception e){e.printStackTrace();}
+	        
         }
 
-        public String getValue() {
+        public int getValue() {
             return value;
         }
+        public BufferedImage getIcon()
+        {
+        	return icon;
+        }
+
+
 
         public static Suit[] items = new Suit[]{
             CLUBS, DIAMONDS, HEARTS, SPADES
@@ -260,8 +294,11 @@ public class SimpleCards {
             g2d.translate(bounds.x + 5, bounds.y + 5);
             g2d.setClip(0, 0, bounds.width - 5, bounds.height - 5);
 
-            String text = card.getFace().getValue() + card.getSuit().getValue();
+            String text = card.getFace().getValue();
             FontMetrics fm = g2d.getFontMetrics();
+            AffineTransform at = new AffineTransform();
+            at.translate( bounds.width/2 - 16, bounds.height/2 - 16);
+            g2d.drawImage(card.getSuit().getIcon(), at, null);
 
             g2d.drawString(text, 0, fm.getAscent());
         }
