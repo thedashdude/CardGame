@@ -20,6 +20,7 @@ import javax.imageio.ImageIO;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
+//An enum that holds a list of all cards in a deck that can be shuffled and delt from
 public enum Deck {
 
         INSTANCE;

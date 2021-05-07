@@ -20,6 +20,7 @@ import javax.imageio.ImageIO;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
+//Creates a button with a rectangle and a name
 public class Button {
 
     private String name;

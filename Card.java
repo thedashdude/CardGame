@@ -20,7 +20,7 @@ import javax.imageio.ImageIO;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
-
+//Creates the basic data of a Card, just its suit and face value
 public class Card {
 
         private Suit suit;

@@ -20,7 +20,7 @@ import javax.imageio.ImageIO;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
-
+//Holds the suit of a card, as well as the png pip of that suit
     enum Suit {
         CLUBS(0), DIAMONDS(1), HEARTS(2), SPADES(3);
 

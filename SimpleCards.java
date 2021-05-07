@@ -1,3 +1,6 @@
+//Daschel Cooper and Michael Connelly
+//5/6/2021
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -26,6 +29,8 @@ public class SimpleCards {
         new SimpleCards();
     }
 
+
+    //Initialize the program
     public SimpleCards() {
         EventQueue.invokeLater(new Runnable() {
             @Override
@@ -35,19 +40,7 @@ public class SimpleCards {
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
                     ex.printStackTrace();
                 }
-                /*
-                Deck.INSTANCE.shuffle();
-                List<Hand> players = new ArrayList<>(5);
-                for (int index = 0; index < 5; index++) {
-                    players.add(new Hand());
-                }
 
-                for (int index = 0; index < 5; index++) {
-                    for (Hand hand : players) {
-                        hand.add(Deck.INSTANCE.pop());
-                    }
-                }
-				*/
                 JFrame frame = new JFrame("Card Game!");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.add(new GamePane());
@@ -58,6 +51,7 @@ public class SimpleCards {
         });
     }
 
+    //Holds a hand of cards, just a usefull wrapper for a List<Card>
     public class Hand {
 
         public List<Card> cards;
@@ -86,31 +80,43 @@ public class SimpleCards {
     }
 
     
-
+    //The actual game logic is here in GamePane
     public class GamePane extends JPanel {
 
+    	//Hold a list of Hands for the player
+    	//In this version it only holds one, but were the game expanded this could easily grow 
         private List<Hand> players;
 
+        //The list of buttons in the game
         private List<Button> buttons;
 
+        //A map collecting where all of the Cards are located
         private Map<Card, Rectangle> mapCards;
 
+        //The current card selected
         private Card selected;
 
+        //The current card at the top of the Place pile
         private Card scoringCard;
         private Rectangle scoringRect;
 
+        //Some game variables
         private int score = 0;
         private int handsLeft = 4;
         private boolean done = false;
 
+        //The location in the players hand that the currently selected card should return to if they don't finalize it.
         private Rectangle cardReturn = new Rectangle();
 
+        //The background images
+        //Originally a spinoff of the pythagorean fractal program, but generating fractals all the time gets slow so I just used a picture of the final fractal
         private BufferedImage bgImage;
         private BufferedImage tutImage;
 
+        //If the help screen is showing
         private boolean inHelp = false;
 
+        //Submits a card, removing it from the hand adding the appropriate score.
         private void submitCard(Card c)
         {
         	if(scoringCard != null){
@@ -145,6 +151,7 @@ public class SimpleCards {
         	}
         }
 
+        //The constructor initializes the game, creates the buttons, and loads the images for the background and help screen.
         public GamePane() {
         	
         	try{
@@ -161,16 +168,19 @@ public class SimpleCards {
 
 
             
-
+        	//Describes the logic for user interaction with the mouse
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
+                	//If on the hel screen, close it
                 	if(inHelp)
                 	{
                 		inHelp = false;
                 		repaint();
                 		return;
                 	}
+
+                	//Otherwise check the buttons
                 	for(Button b : buttons)
                 	{
                 		if(b.getRect().contains(e.getPoint()))
@@ -191,6 +201,7 @@ public class SimpleCards {
 
                 	}
 
+                	//Finally see if a card needs to be changed or selected
                     if (selected != null) {
                     	Card newSelected = null;
                     	for (Card card : players.get(0).reveresed()) {
@@ -234,6 +245,7 @@ public class SimpleCards {
             });
         }
 
+        //Not draw as in paint, but as in load five cards from the shuffled deck into the hand
         private void drawFiveCards()
         {
         	for (int index = 0; index < 5; index++) {
@@ -243,6 +255,7 @@ public class SimpleCards {
             setMapCards();
         }
 
+        //Resets the game
         private void initializeGame()
         {
         	scoringCard = null;
@@ -270,7 +283,7 @@ public class SimpleCards {
             return new Dimension(400, 400);
         }
 
-
+        //Set the cardMap
         private void setMapCards() {
         	int h = 400;
             mapCards.clear();
@@ -288,14 +301,16 @@ public class SimpleCards {
             }
         }
 
+        //Draw the graphics
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g.create();
 
+            //Background
             AffineTransform at = new AffineTransform();
             g2d.drawImage(bgImage, at, null);
 
-
+            //UI
             Hand hand = players.get(0);
             g2d.drawString("Place",160,60);
             g2d.drawRect(160,70,100,150);
@@ -310,6 +325,7 @@ public class SimpleCards {
             	g2d.drawString("Final Score: " + score,160,315);
             }
 
+            //Place pile
             if(scoringCard != null)
             {
             	Rectangle bounds = scoringRect;
@@ -325,6 +341,7 @@ public class SimpleCards {
                 }
             }
 
+            //Cards
             for (Card card : hand.cards) {
                 Rectangle bounds = mapCards.get(card);
                 System.out.println(bounds);
@@ -339,18 +356,20 @@ public class SimpleCards {
                 }
             }
 
+            //Highlight
             if(selected != null)
             {
             	g2d.setColor(Color.RED);
             	g2d.drawRect(160,70,100,150);
             }
 
-
+            //Buttons
             for(Button b : buttons)
             {
             	b.draw(g2d);
             }
 
+            //Help
             if(inHelp)
             {
             	g2d.drawImage(tutImage, at, null);
@@ -359,6 +378,8 @@ public class SimpleCards {
             g2d.dispose();
         }
 
+
+        //Draw card in the rectangle bounds
         protected void paintCard(Graphics2D g2d, Card card, Rectangle bounds) {
             g2d.translate(bounds.x, bounds.y );
             g2d.setClip(0, 0, bounds.width - 5, bounds.height - 5);
