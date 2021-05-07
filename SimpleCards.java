@@ -48,7 +48,7 @@ public class SimpleCards {
                     }
                 }
 				*/
-                JFrame frame = new JFrame("Testing");
+                JFrame frame = new JFrame("Card Game!");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.add(new GamePane());
                 frame.pack();
@@ -102,20 +102,31 @@ public class SimpleCards {
 
         private int score = 0;
         private int handsLeft = 4;
+        private boolean done = false;
 
         private Rectangle cardReturn = new Rectangle();
 
+        private BufferedImage bgImage;
+        private BufferedImage tutImage;
+
+        private boolean inHelp = false;
+
         private void submitCard(Card c)
         {
-        	if(scoringCard.getSuit() == c.getSuit())
-        	{
-        		score+=1;
-        	}
-        	if(scoringCard.getSuit() == c.getSuit())
-        	{
-        		score+=1;
-        	}
-
+        	if(scoringCard != null){
+	        	if(scoringCard.getSuit() == c.getSuit())
+	        	{
+	        		score+=1;
+	        	}
+	        	if(scoringCard.getFace().getInt() < c.getFace().getInt())
+	        	{
+	        		score+=2;
+	        	}
+	        	if(scoringCard.getFace().getInt() > c.getFace().getInt())
+	        	{
+	        		score+=1;
+	        	}
+			}
 
         	scoringCard = c;
         	scoringRect = mapCards.get(c);
@@ -128,11 +139,22 @@ public class SimpleCards {
         		drawFiveCards();
         		handsLeft--;
         	}
+        	else if(players.get(0).size() == 0 && handsLeft == 0)
+        	{
+        		done = true;
+        	}
         }
 
         public GamePane() {
+        	
+        	try{
+	        	bgImage = ImageIO.read(getClass().getResource("/images/bg.png"));
+	        	tutImage = ImageIO.read(getClass().getResource("/images/help.png"));
+	        }catch(Exception e){e.printStackTrace();}
+
         	buttons = new ArrayList<>();
-        	buttons.add(new Button("RESET",new Rectangle(10,10,100,20), true));
+        	buttons.add(new Button("RESET",new Rectangle(10,10,60,20), true));
+        	buttons.add(new Button("HELP",new Rectangle(10,40,60,20), true));
         	initializeGame();
 
             
@@ -143,7 +165,12 @@ public class SimpleCards {
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-
+                	if(inHelp)
+                	{
+                		inHelp = false;
+                		repaint();
+                		return;
+                	}
                 	for(Button b : buttons)
                 	{
                 		if(b.getRect().contains(e.getPoint()))
@@ -152,6 +179,10 @@ public class SimpleCards {
                 			{
                 				initializeGame();
                 				selected = null;
+                			}
+                			if(b.isText("HELP"))
+                			{
+                				inHelp = true;
                 			}
 
                 			repaint();
@@ -218,6 +249,7 @@ public class SimpleCards {
         	scoringRect = null;
         	score = 0;
         	handsLeft = 4;
+        	done = false;
         	Deck.INSTANCE.shuffle();
             players = new ArrayList<>(1);
             players.add(new Hand());
@@ -259,6 +291,11 @@ public class SimpleCards {
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g.create();
+
+            AffineTransform at = new AffineTransform();
+            g2d.drawImage(bgImage, at, null);
+
+
             Hand hand = players.get(0);
             g2d.drawString("Place",160,60);
             g2d.drawRect(160,70,100,150);
@@ -267,6 +304,11 @@ public class SimpleCards {
 
             g2d.drawString("Score: " + score,50,100);
             g2d.drawString("Hands: " + handsLeft,50,150);
+
+            if(done)
+            {
+            	g2d.drawString("Final Score: " + score,160,315);
+            }
 
             if(scoringCard != null)
             {
@@ -308,6 +350,12 @@ public class SimpleCards {
             {
             	b.draw(g2d);
             }
+
+            if(inHelp)
+            {
+            	g2d.drawImage(tutImage, at, null);
+            }
+
             g2d.dispose();
         }
 
